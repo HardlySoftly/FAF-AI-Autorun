@@ -3,7 +3,7 @@
 ## Pre-requisites
 - Python 3 installed (pip too would be helpful)
 - FAF installed, and any AI mods you want to use loaded (run a game with them all active to be sure).
-- Note: 
+- Note: I'm sure I had something to say here, but I forgot what it was sorry.
 
 ## Prep
 1. Clone this repo
