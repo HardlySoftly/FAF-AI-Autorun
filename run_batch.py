@@ -110,6 +110,7 @@ def run_exp(exp,lock):
     exp["results"] = []
     exp["winners"] = []
     result = get_result(logfile+".sclog",exp)
+    # Comment the next line if you want to keep the logs from the games that are run
     os.remove(logfile+".sclog")
     lock.acquire()
     with open(resultPath,"a") as f:
