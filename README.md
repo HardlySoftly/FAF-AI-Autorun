@@ -16,7 +16,7 @@
     - Make a copy of init_faf.lua and call it init_autorun.lua
     - Add 'autorun.zip' to the whitelist
     - Add the following line right before the two mount_mod_sounds lines:
-        - mount_dir_with_whitelist(InitFileDir .. '\\..\\gamedata\\', '*.zip', '/')
+        - mount_dir_with_whitelist(InitFileDir .. '\\\\..\\\\gamedata\\\\', '*.zip', '/')
 
 ## Usage
 1. Edit the run_batch.py file to contain the experiments you want to run
