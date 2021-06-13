@@ -31,7 +31,7 @@ factions = {
 
 def run_batch(args):
     faf_dir = get_faforever_dir()
-    log_dir = Path("logs")
+    log_dir = Path.cwd() / "logs"
 
     if not args.obnoxious and gw is None:
         log.warning("Can't minimize windows because pygetwindow is not installed!")
@@ -44,6 +44,9 @@ def run_batch(args):
         ):
             log.debug("Cancelling...")
             return
+
+    if not log_dir.exists():
+        log_dir.mkdir()
 
     futures = []
     with ThreadPoolExecutor(max_workers=args.num_threads) as executor:
@@ -78,9 +81,12 @@ def run_batch(args):
         for i, (experiment, result) in enumerate(zip(experiments, results)):
             i += 1
             ais = sorted(experiment.ais, key=lambda ai: ai.slot)
+            armies = {
+                ai.slot: ai for ai in experiment.ais
+            }
             print("Experiment", i, " vs ".join(ai.name for ai in ais))
             for army, results in sorted(result.items(), key=lambda x: x[0]):
-                print("   ", army, results)
+                print("   ", armies[army].name, results)
             print()
 
 
@@ -95,10 +101,10 @@ def run_experiment(
     bin = faf_dir / "bin"
 
     log_id = "".join(random.choice(string.hexdigits) for _ in range(8))
-    log_name = log_dir / "log_" + log_id
+    log_name = log_dir / ("log_" + log_id)
     log_file = log_name.with_suffix(".sclog")
 
-    subprocess.run([
+    args = [
         bin / "ForgedAlliance.exe",
         "/nobugreport",
         "/nosound",
@@ -108,7 +114,9 @@ def run_experiment(
         "/log", log_name,
         "/maxtime", str(max_time),
         "/aitest", ai_test_arg(ais)
-    ])
+    ]
+    log.debug("%s", args)
+    subprocess.run(args)
 
     return get_results(log_file)
 

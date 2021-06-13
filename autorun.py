@@ -5,8 +5,6 @@ import sys
 from _autorun.batch import run_batch
 from _autorun.install import install, uninstall
 
-log = logging.getLogger(__name__)
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -41,6 +39,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    log = logging.getLogger()
     log.setLevel({
         0: logging.WARNING,
         1: logging.INFO,
@@ -51,4 +50,4 @@ if __name__ == "__main__":
     try:
         args.func(args)
     except Exception as e:
-        log.warning(f"{e.__class__.__name__}: {e}")
+        log.warning(f"{e.__class__.__name__}: {e}", exc_info=args.verbose > 0)

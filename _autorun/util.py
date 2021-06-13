@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 
 def get_faforever_dir():
     if os.name == "nt":
-        return Path("c:ProgramData/FAForever")
+        return Path("C:/ProgramData/FAForever")
     else:
         return Path.home() / ".faforever"
 
