@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parser_batch.add_argument("--obnoxious", "-o", help="Don't minimize Forged Alliance windows", action="store_true")
     parser_batch.add_argument("--delete-logs", "-d", help="Delete log files after experiments have finished", action="store_true")
     parser_batch.add_argument("--save-results", "-s", help="Write results to a text file instead of printing them", action="store_true")
+    parser_batch.add_argument("--dry-run", "-z", help="Dry run only, don't run the games", action="store_true")
     parser_batch.set_defaults(func=run_batch)
     add_common(parser_batch)
 

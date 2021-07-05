@@ -48,6 +48,10 @@ def run_batch(args):
     if not log_dir.exists():
         log_dir.mkdir()
 
+    if args.dry_run:
+        print(len(experiments))
+        exit()
+
     futures = []
     with ThreadPoolExecutor(max_workers=args.num_threads) as executor:
         for experiment in experiments:
@@ -75,8 +79,10 @@ def run_batch(args):
 
     results = [fut.result(0) for fut in futures]
     if args.save_results:
-        with open("results.json") as f:
-            json.dump(results, f)
+        with open("results.json","a") as f:
+            for res in results:
+                f.write(json.dumps(res))
+                f.write("\n")
     else:
         for i, (experiment, result) in enumerate(zip(experiments, results)):
             i += 1
@@ -118,7 +124,7 @@ def run_experiment(
     log.debug("%s", args)
     subprocess.run(args)
 
-    return get_results(log_file)
+    return get_results(log_file, ais, map_name)
 
 
 def ai_test_arg(ais):
@@ -131,12 +137,12 @@ def ai_test_arg(ais):
     )
 
 
-def get_results(log_file):
-    game_results = defaultdict(set)
+def get_results(log_file,ais,map_name):
+    game_results = defaultdict(list)
     with open(log_file) as f:
         for line in f:
             if "AutoRunEndResult|" in line:
                 _, army_index, result = line.strip().split("|")
-                game_results[army_index].add(result)
+                game_results[army_index].append(result)
 
-    return game_results
+    return {"map": map_name, "ais": ais, "results": game_results}
