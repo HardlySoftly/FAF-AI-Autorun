@@ -270,7 +270,7 @@ local function SetupCommandLineSkirmish(scenario, isPerfTest)
             if faction == 0 then
                 faction = math.random(1,4)
             end
-            table.insert(aiTable,{ Spawn = tonumber(fields[1]), AIPersonality = fields[2], Faction = faction})
+            table.insert(aiTable,{ Spawn = tonumber(fields[1]), AIPersonality = fields[2], Faction = faction, Team = tonumber(fields[4])})
         end
     end
     
@@ -278,6 +278,9 @@ local function SetupCommandLineSkirmish(scenario, isPerfTest)
         sessionInfo.teamInfo[v.Spawn] = import('/lua/ui/lobby/lobbyComm.lua').GetDefaultPlayerOptions(sessionInfo.playerName)
         sessionInfo.teamInfo[v.Spawn].AIPersonality = v.AIPersonality
         sessionInfo.teamInfo[v.Spawn].Faction = v.Faction
+        if v.Team > 0 then
+            sessionInfo.teamInfo[v.Spawn].Team = v.Team
+        end
         sessionInfo.teamInfo[v.Spawn].PlayerName = tostring(v.Spawn).."_"..v.AIPersonality
         sessionInfo.teamInfo[v.Spawn].Human = false
         sessionInfo.teamInfo[v.Spawn].ArmyName = armies[v.Spawn]
@@ -301,6 +304,7 @@ local function SetupCommandLineSkirmish(scenario, isPerfTest)
     sessionInfo.scenarioInfo.Options.AllowObservers = true
     sessionInfo.scenarioInfo.Options.UnitCap = "1000"
     sessionInfo.scenarioInfo.Options.GameSpeed = "fast"
+    sessionInfo.scenarioInfo.Options.AIThreatDisplay = 'threatOff'
     sessionInfo.createReplay = true
 
     Prefs.SetToCurrentProfile('LoadingFaction', faction)

@@ -28,8 +28,31 @@ factions = {
     "seraphim": 4,
 }
 
+import os, multiprocessing, psutil
+
+class Affinity:
+    def __init__(self):
+        self.cpus = {
+            i: False for i in range(1,psutil.cpu_count())
+        }
+        self.pids = {}
+        self.lock = multiprocessing.Lock()
+    def start(self,pid):
+        with self.lock:
+            i = random.choice([x for x in self.cpus if not self.cpus[x]])
+            self.cpus[i] = True
+            self.pids[pid] = i
+            psutil.Process(pid).cpu_affinity([i])
+    def end(self,pid):
+        with self.lock:
+            i = self.pids[pid]
+            del self.pids[pid]
+            self.cpus[i] = False
+
+AFFINITY = Affinity()
 
 def run_batch(args):
+    start = time.time()
     faf_dir = get_faforever_dir()
     log_dir = Path.cwd() / "logs"
 
@@ -50,10 +73,11 @@ def run_batch(args):
 
     if args.dry_run:
         print(len(experiments))
+        print(ai_test_arg(experiments[0].ais))
         exit()
 
     futures = []
-    with ThreadPoolExecutor(max_workers=args.num_threads) as executor:
+    with ThreadPoolExecutor(max_workers=args.num_threads if not args.use_affinity else min(psutil.cpu_count(),args.num_threads)) as executor:
         for experiment in experiments:
             fut = executor.submit(
                 run_experiment,
@@ -61,7 +85,8 @@ def run_batch(args):
                 ais=experiment.ais,
                 map_name=experiment.map,
                 max_time=args.max_game_time,
-                log_dir=log_dir
+                log_dir=log_dir,
+                use_affinity=args.use_affinity
             )
             futures.append(fut)
 
@@ -91,9 +116,10 @@ def run_batch(args):
                 ai.slot: ai for ai in experiment.ais
             }
             print("Experiment", i, " vs ".join(ai.name for ai in ais))
-            for army, results in sorted(result.items(), key=lambda x: x[0]):
+            for army, results in sorted(result["ais"].items(), key=lambda x: x[0]):
                 print("   ", armies[army].name, results)
             print()
+    print(time.time()-start)
 
 
 def run_experiment(
@@ -102,6 +128,7 @@ def run_experiment(
     map_name,
     max_time,
     log_dir,
+    use_affinity,
     init_name="init_autorun.lua"
 ):
     bin = faf_dir / "bin"
@@ -122,27 +149,37 @@ def run_experiment(
         "/aitest", ai_test_arg(ais)
     ]
     log.debug("%s", args)
-    subprocess.run(args)
-
+    proc = subprocess.Popen(args)
+    pid = proc.pid
+    if use_affinity:
+        AFFINITY.start(pid)
+    proc.wait()
+    if use_affinity:
+        AFFINITY.end(pid)
     return get_results(log_file, ais, map_name)
 
 
 def ai_test_arg(ais):
     return ",".join(
-        "{}:{}:{}".format(
+        "{}:{}:{}:{}".format(
             ai.slot,
             ai.name,
-            factions[ai.faction.lower()]
+            factions[ai.faction.lower()],
+            ai.team
         ) for ai in ais
     )
 
 
 def get_results(log_file,ais,map_name):
     game_results = defaultdict(list)
+    winners = []
     with open(log_file) as f:
         for line in f:
             if "AutoRunEndResult|" in line:
                 _, army_index, result = line.strip().split("|")
+                army_index = int(army_index)
                 game_results[army_index].append(result)
+                if "victory" in result:
+                    winners.append(army_index)
 
-    return {"map": map_name, "ais": ais, "results": game_results}
+    return {"map": map_name, "ais": ais, "results": game_results, "winners": winners}
