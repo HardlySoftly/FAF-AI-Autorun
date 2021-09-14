@@ -109,16 +109,8 @@ def run_batch(args):
                 f.write(json.dumps(res))
                 f.write("\n")
     else:
-        for i, (experiment, result) in enumerate(zip(experiments, results)):
-            i += 1
-            ais = sorted(experiment.ais, key=lambda ai: ai.slot)
-            armies = {
-                ai.slot: ai for ai in experiment.ais
-            }
-            print("Experiment", i, " vs ".join(ai.name for ai in ais))
-            for army, results in sorted(result["ais"].items(), key=lambda x: x[0]):
-                print("   ", armies[army].name, results)
-            print()
+        for result in results:
+            print(json.dumps(result))
     print(time.time()-start)
 
 
