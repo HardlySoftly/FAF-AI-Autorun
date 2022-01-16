@@ -84,7 +84,7 @@ def modify_init(init_file, zip_name):
             state = "functions"
         elif state == "functions":
             # Find the mount sounds section
-            if line.startswith("mount_mod_sounds"):
+            if "*.nxt" in line:
                 # Insert our mount before mount_mod_sounds
                 yield (
                     "mount_dir_with_whitelist("
