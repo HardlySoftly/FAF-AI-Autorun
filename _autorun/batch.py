@@ -165,6 +165,7 @@ def ai_test_arg(ais):
 def get_results(log_file,ais,map_name):
     game_results = defaultdict(list)
     winners = []
+    profiling = []
     with open(log_file) as f:
         for line in f:
             if "AutoRunEndResult|" in line:
@@ -173,5 +174,7 @@ def get_results(log_file,ais,map_name):
                 game_results[army_index].append(result)
                 if "victory" in result:
                     winners.append(army_index)
+            elif "AutoRunProfileLog|" in line:
+                profiling.append(line.strip().split("|",1)[1])
 
-    return {"map": map_name, "ais": ais, "results": game_results, "winners": winners}
+    return {"map": map_name, "ais": ais, "winners": winners, "results": game_results, "profiling": profiling}

@@ -273,7 +273,7 @@ local function SetupCommandLineSkirmish(scenario, isPerfTest)
             table.insert(aiTable,{ Spawn = tonumber(fields[1]), AIPersonality = fields[2], Faction = faction, Team = tonumber(fields[4])})
         end
     end
-    
+
     for _, v in aiTable do
         sessionInfo.teamInfo[v.Spawn] = import('/lua/ui/lobby/lobbyComm.lua').GetDefaultPlayerOptions(sessionInfo.playerName)
         sessionInfo.teamInfo[v.Spawn].AIPersonality = v.AIPersonality
@@ -305,11 +305,12 @@ local function SetupCommandLineSkirmish(scenario, isPerfTest)
     sessionInfo.scenarioInfo.Options.UnitCap = "1000"
     sessionInfo.scenarioInfo.Options.GameSpeed = "fast"
     sessionInfo.scenarioInfo.Options.AIThreatDisplay = 'threatOff'
+    --sessionInfo.scenarioInfo.Options.Share = 'FullShare'
     sessionInfo.createReplay = true
 
     Prefs.SetToCurrentProfile('LoadingFaction', faction)
 
-    ForkThread( 
+    ForkThread(
         function()
             local N = 100
             while not WorldIsPlaying() do
