@@ -1,0 +1,20 @@
+How I usually run the script...
+1) Remember how it works by running:
+python autorun.py batch -have
+2) Check I set the experiments up right:
+python autorun.py batch -a -n 10 -d -s -z
+3) Actually run the experiments
+python autorun.py batch -a -n 10 -d -s
+
+CHECK YOU HAVE MOVED / DELETED THE OLD 'results.json' FILE - it appends to this file by default so new results will get added to the end of old results if you don't do this.
+
+Change the number 10 to something less than the number of logical cores you have (see task manager), would recommend leaving one free at least (desktop will get laggy).  If the number is above the number of cores it will break.
+
+Would recommend always running with -a and specifying a core count.
+
+To get the running options:
+python autorun.py batch -h
+
+To see how many experiments it will run (without running anything) include -z in the arguments.  Check this matches what you expect - it also prints out one experiment config at random.
+
+Setting the -o option stops the windows from minimising, but this may(?) make it run slower, and cause GPU bottlenecking so I usually leave it out so they all minimise.
